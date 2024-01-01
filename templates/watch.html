@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watch Video</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+</head>
+<body>
+    <h1>Video Streaming</h1>
+    <video id="video" controls></video>
+
+    <script>
+        var socket = io();
+        var video = document.getElementById('video');
+        var videoUrl = '{{ video_url }}';
+        var sessionCode = '{{ session_code }}';
+        var isSyncing = false;
+
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(videoUrl);
+            hls.attachMedia(video);
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoUrl;
+        }
+
+        socket.emit('join', { session_code: sessionCode });
+
+        // Event listeners for user interaction.
+        video.onplay = function() {
+            if (!isSyncing) {
+                socket.emit('sync_command', { action: 'play', currentTime: video.currentTime, session_code: sessionCode });
+            }
+        };
+
+        video.onpause = function() {
+            if (!isSyncing) {
+                socket.emit('sync_command', { action: 'pause', currentTime: video.currentTime, session_code: sessionCode });
+            }
+        };
+
+        video.onseeked = function() {
+            if (!isSyncing) {
+                socket.emit('sync_command', { action: 'seek', currentTime: video.currentTime, session_code: sessionCode });
+            }
+        };
+
+        // Receiving sync command from server. Needs to check code for matching. Create unique session so data wont be compromised between all users
+        socket.on('sync_action', function(data) {
+            isSyncing = true; 
+
+            // Check code logic.
+
+            switch (data.action) {
+                case 'play':
+                    video.currentTime = data.currentTime;
+                    video.play();
+                    break;
+                case 'pause':
+                    video.currentTime = data.currentTime;
+                    video.pause();
+                    break;
+                case 'seek':
+                    video.currentTime = data.currentTime;
+                    break;
+            }
+
+            setTimeout(function() {
+                isSyncing = false;
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
