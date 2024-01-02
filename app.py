@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from flask_socketio import SocketIO, join_room, emit
+from flask_socketio import SocketIO, join_room, emit, leave_room
 
 from dotenv import load_dotenv
 
@@ -23,6 +23,11 @@ def on_join(data):
     room_code = data['session_code']
     join_room(room_code)
     emit('new_user_joined', {'session_code': room_code}, room=room_code)
+
+@socketio.on('leave')
+def on_leave(data):
+    room_code = data['session_code']
+    leave_room(room_code)
 
 @socketio.on('sync_command')
 def handle_sync_command(data):
