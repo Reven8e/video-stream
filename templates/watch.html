@@ -27,48 +27,30 @@
 
         socket.emit('join', { session_code: sessionCode });
 
-        // Event listeners for user interaction.
-        video.onplay = function() {
+        video.onplay = video.onpause = video.onseeked = function(event) {
             if (!isSyncing) {
-                socket.emit('sync_command', { action: 'play', currentTime: video.currentTime, session_code: sessionCode });
+                socket.emit('sync_command', { action: event.type, currentTime: video.currentTime, session_code: sessionCode });
             }
         };
 
-        video.onpause = function() {
-            if (!isSyncing) {
-                socket.emit('sync_command', { action: 'pause', currentTime: video.currentTime, session_code: sessionCode });
-            }
-        };
-
-        video.onseeked = function() {
-            if (!isSyncing) {
-                socket.emit('sync_command', { action: 'seek', currentTime: video.currentTime, session_code: sessionCode });
-            }
-        };
-
-        // Receiving sync command from server. Needs to check code for matching. Create unique session so data wont be compromised between all users
         socket.on('sync_action', function(data) {
-            isSyncing = true; 
+            isSyncing = true;
+            video.currentTime = data.currentTime;
+            if (data.action === 'play') video.play();
+            if (data.action === 'pause') video.pause();
+            setTimeout(function() { isSyncing = false; }, 1000);
+        });
 
-            // Check code logic.
-
-            switch (data.action) {
-                case 'play':
-                    video.currentTime = data.currentTime;
-                    video.play();
-                    break;
-                case 'pause':
-                    video.currentTime = data.currentTime;
-                    video.pause();
-                    break;
-                case 'seek':
-                    video.currentTime = data.currentTime;
-                    break;
+        socket.on('new_user_joined', function(data) {
+            if (!video.paused && sessionCode === data.session_code) {
+                socket.emit('report_current_time', { currentTime: video.currentTime, session_code: sessionCode });
             }
+        });
 
-            setTimeout(function() {
-                isSyncing = false;
-            }, 1000);
+        socket.on('update_time', function(data) {
+            if (isSyncing) return;
+            video.currentTime = data.currentTime;
+            if (!video.paused) video.play();
         });
     </script>
 </body>
