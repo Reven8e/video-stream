@@ -1,5 +1,5 @@
 .env
-static/video1
-static/video2
+src/static/video1
+src/static/video2
 env
 __pycache__
