@@ -28,9 +28,11 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ['FLASK_SECRET']
 
     from .SocketEvents import socket_events
+    from .Movies import movies
     from .Auth import auth
 
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(movies, url_prefix='/')
     app.register_blueprint(socket_events, url_prefix='/socket_events')
 
     socketio.init_app(app)
