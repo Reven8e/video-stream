@@ -1,6 +1,6 @@
-from src.DBMS import DBMS
+from src import create_app, socketio
 
+app = create_app()
 
-database = DBMS()
-print(database.login_user("'", '1234'))
-database.close_connection()
+if __name__ == '__main__':
+    socketio.run(app, debug=True)
