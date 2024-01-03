@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, session, request
-from flask_bcrypt import Bcrypt
 from src.DBMS import DBMS
 from src import login_required
 
