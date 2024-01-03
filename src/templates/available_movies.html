@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block title %}Available Movies{% endblock %}}
+{% block nav %}
+<a class="nav-link" href="#">Available Movies</a>
+<a class="nav-link" href="/signout">Sign Out</a>
+{% endblock %}
+
+{% block content %}
+<h3 align="center">Available Movies</h3>
+<div class="movie-container" style="display: flex;">
+    {% for movie in movies %}
+    <div class="movie">
+        <img src="{{ movie[3] }}" alt="Thumbnail" width="370" height="207" data-toggle="modal" data-target="#modal-{{ movie[0] }}" type="button">
+        <h4>{{ movie[1] }}</h4>
+    </div>
+    <div class="modal fade" id="modal-{{ movie[0] }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Watch Movie: {{ movie[1] }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="settings">
+                        <label for="movie_id">Choose Movie</label>
+                        <select id="movie_id" name="movie_id" class="form-control">
+                            <option value="{{ movie[0] }}">{{ movie[1] }}</option>
+                        </select>
+                        <label for="expiration-date">Expiration Date</label>
+                        <select id="expiration_date" name="expiration_date" class="form-control">
+                            {% for i in range(1, 5) %}
+                                <option value="{{ i }}">{{ i }} day{% if i > 1 %}s{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                        <br />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" form="settings">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+crossorigin="anonymous"></script>
+{% endblock %}
