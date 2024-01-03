@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block title %}Sign Up{% endblock %}}
+
+{% block nav %}
+<a class="nav-link active" href="#">Home</a>
+<a class="nav-link" href="https://www.fiverr.com/yuvalsimon" target='_blank'>Fiverr</a>
+<a class="nav-link" href="https://github.com/Reven8e" target='_blank'>Github</a>
+<a class="nav-link" href="/mighty-manager">Mighty-Manager</a>
+<a class="nav-link" href="/discord-invite" target='_blank'>Discord</a>
+<a class="nav-link" href="/sign-in">Login</a>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <br />
+    <h3 align="center">Sign Up</h3>
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username">     
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="password1">Password</label>
+        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter Password">     
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="passowrd2">Verify Password</label>
+        <input type="password" class="form-control" id="password2" name="password2" placeholder="Enter Password Again">     
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
