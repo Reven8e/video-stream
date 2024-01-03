@@ -14,7 +14,7 @@ socketio = SocketIO(app)
 
 @app.route('/watch_video/<session_code>')
 def watch_video(session_code):
-    video_path = '/static/video1/output.m3u8'
+    video_path = '/static/video2/output.m3u8'
     return render_template('watch.html', video_url=video_path, session_code=session_code)
 
 
