@@ -22,13 +22,13 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" id="settings">
+                    <form method="POST" id="modal-settings-{{ movie[0] }}">
                         <label for="movie_id">Choose Movie</label>
-                        <select id="movie_id" name="movie_id" class="form-control">
+                        <select id="movie_id" name="movie_id" class="form-select">
                             <option value="{{ movie[0] }}">{{ movie[1] }}</option>
                         </select>
                         <label for="expiration-date">Expiration Date</label>
-                        <select id="expiration_date" name="expiration_date" class="form-control">
+                        <select id="expiration_date" name="expiration_date" class="form-select">
                             {% for i in range(1, 5) %}
                                 <option value="{{ i }}">{{ i }} day{% if i > 1 %}s{% endif %}</option>
                             {% endfor %}
@@ -38,7 +38,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" form="settings">Submit</button>
+                    <button type="submit" class="btn btn-primary" form="modal-settings-{{ movie[0] }}">Submit</button>
                 </div>
             </div>
         </div>
