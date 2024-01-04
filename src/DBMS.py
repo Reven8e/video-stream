@@ -152,6 +152,25 @@ class DBMS:
         except Exception as e:
             print(e)
             return False, e
+        
+    def fetch_movie(self, movie_id: int) -> tuple:
+        try:
+            cursor = self.__connection.cursor()
+
+            query = "SELECT * FROM movies WHERE movie_id = %s"
+            cursor.execute(query, (movie_id,))
+
+            data = cursor.fetchone()
+            cursor.close()
+
+            if data is None:
+                return False, "Movie does not exist."
+
+            return True, data
+
+        except Exception as e:
+            print(e)
+            return False, e
 
     def close_connection(self) -> None:
         self.__connection.close()
