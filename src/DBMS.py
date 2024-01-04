@@ -127,7 +127,7 @@ class DBMS:
 
             cursor.close()
             
-            expiration = data[4]
+            expiration = data[4].replace(tzinfo=None)
 
             if expiration < datetime.utcnow():
                 return False, "Access code has expired."
