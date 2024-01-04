@@ -1,0 +1,58 @@
+{% extends "base.html" %} {% block title %}Watch Movie{% endblock %}}
+{% block nav %}
+<a class="nav-link" href="/videostream/available_movies">Available Movies</a>
+<a class="nav-link" href="/signout">Sign Out</a>
+{% endblock %}
+
+{% block content %}
+<h1>Video Streaming</h1>
+<video id="video" controls></video>
+
+<script>
+    var socket = io({
+        reconnectionAttempts: 5,
+        reconnectionDelay: 5000
+    });
+    var video = document.getElementById('video');
+    var userId = '{{ user_id }}';
+    var moviePath = '{{ movie_path }}';
+    var accessCode = '{{ access_code }}';
+    var isSyncing = false;
+
+    if (Hls.isSupported()) {
+        var hls = new Hls();
+        hls.loadSource(moviePath);
+        hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = moviePath;
+    }
+
+    socket.emit('join', { session_code: accessCode });
+
+    video.onplay = video.onpause = video.onseeked = function(event) {
+        if (!isSyncing) {
+            socket.emit('sync_command', { action: event.type, currentTime: video.currentTime, session_code: accessCode });
+        }
+    };
+
+    socket.on('sync_action', function(data) {
+        isSyncing = true;
+        video.currentTime = data.currentTime;
+        if (data.action === 'play') video.play();
+        if (data.action === 'pause') video.pause();
+        setTimeout(function() { isSyncing = false; }, 1000);
+    });
+
+    socket.on('new_user_joined', function(data) {
+        if (!video.paused && accessCode === data.session_code) {
+            socket.emit('report_current_time', { currentTime: video.currentTime, session_code: accessCode });
+        }
+    });
+
+    socket.on('update_time', function(data) {
+        if (isSyncing) return;
+        video.currentTime = data.currentTime;
+        if (!video.paused) video.play();
+    });
+</script>
+{% endblock %}
