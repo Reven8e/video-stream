@@ -10,7 +10,7 @@ import os
 
 load_dotenv()
 
-socketio = SocketIO()
+socketio = SocketIO(async_mode='eventlet')
 
 
 def login_required(f):
