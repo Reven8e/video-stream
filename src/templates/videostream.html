@@ -9,14 +9,14 @@
 <video id="video" controls></video>
 
 <script>
-    var socket = io({
+    const socket = io('/StreamManager', {
         reconnectionAttempts: 5,
         reconnectionDelay: 5000
     });
-    var video = document.getElementById('video');
-    var userId = '{{ user_id }}';
-    var moviePath = '{{ movie_path }}';
-    var accessCode = '{{ access_code }}';
+    const video = document.getElementById('video');
+    const userId = '{{ user_id }}';
+    const moviePath = '{{ movie_path }}';
+    const accessCode = '{{ access_code }}';
     var isSyncing = false;
 
     if (Hls.isSupported()) {
@@ -27,11 +27,11 @@
         video.src = moviePath;
     }
 
-    socket.emit('join', { session_code: accessCode });
+    socket.emit('join', { session_code: accessCode, user_id: userId });
 
     video.onplay = video.onpause = video.onseeked = function(event) {
         if (!isSyncing) {
-            socket.emit('sync_command', { action: event.type, currentTime: video.currentTime, session_code: accessCode });
+            socket.emit('sync_command', { action: event.type, currentTime: video.currentTime, session_code: accessCode, user_id: userId });
         }
     };
 
@@ -45,7 +45,7 @@
 
     socket.on('new_user_joined', function(data) {
         if (!video.paused && accessCode === data.session_code) {
-            socket.emit('report_current_time', { currentTime: video.currentTime, session_code: accessCode });
+            socket.emit('report_current_time', { currentTime: video.currentTime, session_code: accessCode, user_id: userId });
         }
     });
 
