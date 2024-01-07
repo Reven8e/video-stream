@@ -5,7 +5,7 @@ import unittest, uuid
 
 class TestDBMS(unittest.TestCase):
 
-    def __init__(self, methodName: str = "runTest") -> None:
+    def __init__(self, methodName: str = "TestDBMS") -> None:
         super().__init__(methodName)
 
     def test_check_username_none(self):
@@ -28,7 +28,7 @@ class TestDBMS(unittest.TestCase):
 
     def test_login_user_false(self):
         dbms = DBMS()
-        statement, data = dbms.login_user("bogan", "1234")
+        statement, _ = dbms.login_user("bogan", "1234")
         self.assertEqual(statement, False)
         dbms.close_connection()
 
