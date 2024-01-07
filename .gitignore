@@ -1,4 +1,5 @@
 .env
-static/video1
-static/video2
+src/static/movies
 env
+__pycache__
+.vscode
