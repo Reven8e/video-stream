@@ -14,6 +14,16 @@ socketio = SocketIO(async_mode='eventlet')
 
 
 def login_required(f):
+    """
+    Decorator function that checks if the user is logged in before executing the decorated function.
+
+    Args:
+        f (function): The function to be decorated.
+
+    Returns:
+        function: The decorated function.
+
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
         if 'logged_in' in session:
@@ -24,6 +34,15 @@ def login_required(f):
     return wrap
 
 def create_app():
+    """
+    Creates and configures the Flask application.
+
+    This function initializes a Flask application, sets the SECRET_KEY configuration,
+    registers blueprints for different modules, and initializes the SocketIO extension.
+
+    Returns:
+        Flask: The configured Flask application.
+    """
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ['FLASK_SECRET']
 
