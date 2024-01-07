@@ -7,6 +7,8 @@ class FlaskIntegrationTesting(unittest.TestCase):
     def __init__(self, methodName: str = "FlaskIntegrationTesting") -> None:
         super().__init__(methodName)
 
+        self.test_settings = json.load(open("tests/unittest_settings.json", "r"))
+
     def setUp(self):
         app.config['TESTING'] = True
         self.app = app.test_client()
@@ -22,13 +24,13 @@ class FlaskIntegrationTesting(unittest.TestCase):
         4. Access the session and verify that 'user' key contains the expected user information.
         """
         self.app.post('/login', data=dict(
-            username="bogan",
-            password="123"
+            username=self.test_settings['test_user']["username"],
+            password=self.test_settings['test_user']["password"]
         ), follow_redirects=True)
 
         with self.app.session_transaction() as session:
             self.assertEqual(session['logged_in'], True)
-            self.assertEqual(json.loads(session['user'])['user_name'], "bogan")
+            self.assertEqual(json.loads(session['user'])['user_name'], self.test_settings['test_user']["username"])
 
     def test_login_user_false(self):
         """
@@ -41,8 +43,8 @@ class FlaskIntegrationTesting(unittest.TestCase):
         4. Assert that the 'user' session variable is None.
         """
         self.app.post('/login', data=dict(
-            username="bogan123",
-            password="1234erer"
+            username="dserghrwv",  # Incorrect username.
+            password="t2efwdgrwdc"  # Incorrect password.
         ), follow_redirects=True)
 
         with self.app.session_transaction() as session:
@@ -84,9 +86,9 @@ class FlaskIntegrationTesting(unittest.TestCase):
         4. Assert that the 'user' session variable is None.
         """
         self.app.post('/signup', data=dict(
-            username="bogan",
-            password1="123",
-            password2="123"
+            username=self.test_settings['test_user']["username"],
+            password1=self.test_settings['test_user']["password"],
+            password2=self.test_settings['test_user']["password"]
         ), follow_redirects=True)
 
         with self.app.session_transaction() as session:
@@ -103,8 +105,8 @@ class FlaskIntegrationTesting(unittest.TestCase):
             3. Verify that the response status code is 200.
             """
             self.app.post('/login', data=dict(  # Login
-                username="bogan",
-                password="123"
+                username=self.test_settings['test_user']["username"],
+                password=self.test_settings['test_user']["password"]
             ), follow_redirects=True)
 
             response = self.app.get('/videostream/available_movies', follow_redirects=True)
@@ -121,12 +123,12 @@ class FlaskIntegrationTesting(unittest.TestCase):
         3. Assert that the response status code is 200.
         """
         self.app.post('/login', data=dict(  # Login
-            username="bogan",
-            password="123"
+            username=self.test_settings['test_user']["username"],
+            password=self.test_settings['test_user']["password"]
         ), follow_redirects=True)
 
         response = self.app.post('/videostream/available_movies', data=dict(
-            movie_id=1,
+            movie_id=self.test_settings['test_movie']["movie_id"],
             expiration_date=1
         ), follow_redirects=True)
 

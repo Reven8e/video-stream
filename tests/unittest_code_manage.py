@@ -1,7 +1,8 @@
 from src.CodeManage import CodeManage
 
 from datetime import datetime, timedelta
-import unittest
+import unittest, json
+
 
 class TestCodeManage(unittest.TestCase):
     """
@@ -9,6 +10,8 @@ class TestCodeManage(unittest.TestCase):
     """
     def __init__(self, methodName: str = "TestCodeManage") -> None:
         super().__init__(methodName)
+
+        self.test_settings = json.load(open("tests/unittest_settings.json", "r"))
 
     def test_generate_access_code_true(self):
         """
@@ -25,8 +28,8 @@ class TestCodeManage(unittest.TestCase):
         """
         code_manager = CodeManage()
 
-        user_id = "58d3c2da-748e-40df-bde9-27770b380f2f"  # Real User ID.
-        movie_id = 1  # Real Movie ID.
+        user_id =self.test_settings['test_user']["user_id"]  # Real User ID.
+        movie_id = self.test_settings['test_movie']["movie_id"]  # Real Movie ID.
         expiration_date = datetime.utcnow() + timedelta(days=1)
 
         access_code = code_manager.generate_access_code(user_id, movie_id, expiration_date)
@@ -48,7 +51,7 @@ class TestCodeManage(unittest.TestCase):
         code_manager = CodeManage()
 
         user_id = "58d3c9da-748E-40df-bde9-29179b400f8F"  # Fake user ID
-        movie_id = 1  # Real Movie ID.
+        movie_id = self.test_settings['test_movie']["movie_id"]  # Real Movie ID.
         expiration_date = datetime.utcnow() + timedelta(days=1)
 
         access_code = code_manager.generate_access_code(user_id, movie_id, expiration_date)
@@ -66,7 +69,7 @@ class TestCodeManage(unittest.TestCase):
         4. Verify that the data returned is "Access code has expired."
         """
         code_manager = CodeManage()
-        statement, data = code_manager.check_access_code("PS76EzAjiT")  # Expired access code.
+        statement, data = code_manager.check_access_code(self.test_settings['test_access_code']["code_id"])  # Expired access code.
         self.assertEqual(statement, False)
         self.assertEqual(data, "Access code has expired.")
 
