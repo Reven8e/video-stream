@@ -8,6 +8,16 @@ auth = Blueprint('auth', __name__)
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
+    """
+    Handles the login functionality.
+
+    This function is responsible for handling the login process. It retrieves the username and password from the request form,
+    validates them against the user database, and sets the session variables accordingly. If the login is successful, the user
+    is redirected to the available movies page. Otherwise, an error message is displayed.
+
+    Returns:
+        If the login is successful, the function redirects the user to the available movies page. Otherwise, it renders the login.html template.
+    """
     if request.method == "POST":
         username = request.form.get('username')
         password = request.form.get('password')
@@ -28,6 +38,18 @@ def login():
 
 @auth.route("/signup", methods=["GET", "POST"])
 def sign_up():
+    """
+    Handles the sign-up functionality.
+
+    This function is responsible for handling the sign-up process when a user submits the sign-up form.
+    It validates the username and password entered by the user, registers the user in the database,
+    and sets the session variables if the sign-up is successful.
+
+    Returns:
+        If the sign-up is successful, it redirects the user to the available_movies page and displays a success message.
+        If there is an error during the sign-up process, it displays an appropriate error message.
+
+    """
     if request.method == "POST":
         username = request.form.get("username")
         password1 = request.form.get('password1')
@@ -59,5 +81,11 @@ def sign_up():
 @auth.route('/signout')
 @login_required
 def sign_out():
+    """
+    Clears the session and redirects the user to the login page.
+    
+    Returns:
+        A redirect response to the login page.
+    """
     session.clear()
     return redirect(url_for('auth.login')), flash('You have signed out.', 'success')
