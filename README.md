@@ -75,7 +75,7 @@ Before you begin, ensure you have the following installed:
    ```
 
 
-5. **Watch Together / Stream Endpoint:** Share the URL http://127.0.0.1:5000/videostream/watch/{access_code} with others to watch together.
+5. **Watch Together / Stream Endpoint:** Share the URL http://127.0.0.1:5000/videostream/watch/<access_code> with others to watch together.
 
    CURL Example:
    ```bash
