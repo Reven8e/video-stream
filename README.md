@@ -20,7 +20,7 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the Git Repository:**
    ```bash
-   git clone [REPOSITORY_URL]
+   git clone https://github.com/Reven8e/video-stream
    ```
 
 2. **Set Up the Database:**
