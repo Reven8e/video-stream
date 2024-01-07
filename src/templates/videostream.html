@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/3.2.0/shaka-player.compiled.js"></script>
 
 <script>
-    // This script initializes a Shaka Player for video streaming and establishes a socket connection for synchronization.
+    // This script initializes a Shaka Player for ABR video streaming and establishes a socket connection for synchronization.
     // It loads a video file specified by the 'moviePath' variable and configures adaptive bitrate streaming (ABR).
     // The socket connection is used to synchronize video playback between multiple users.
     // The 'accessCode' and 'userId' variables are used to identify the user and session.
@@ -43,7 +43,7 @@
         player.configure({
             abr: {
                 enabled: true,
-                defaultBandwidthEstimate: 6000000,
+                defaultBandwidthEstimate: 3700000,
                 bandwidthUpgradeTarget: 0.85,
                 bandwidthDowngradeTarget: 0.95
             },
