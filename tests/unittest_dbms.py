@@ -1,7 +1,7 @@
 from src.DBMS import DBMS
 
 from datetime import datetime, timedelta
-import unittest, uuid
+import unittest, uuid, json
 
 class TestDBMS(unittest.TestCase):
     """
@@ -9,6 +9,8 @@ class TestDBMS(unittest.TestCase):
     """
     def __init__(self, methodName: str = "TestDBMS") -> None:
         super().__init__(methodName)
+
+        self.test_settings = json.load(open("tests/unittest_settings.json", "r"))
 
     def test_check_username_none(self):
         """
@@ -37,10 +39,9 @@ class TestDBMS(unittest.TestCase):
         5. Close the database connection.
         """
         dbms = DBMS()
-        statement, data = dbms.check_username("bogan")
+        data = dbms.check_username(self.test_settings['test_user']["username"])
 
-        self.assertEqual(statement, True)
-        self.assertEqual(data, "bogan")
+        self.assertEqual(data[1], self.test_settings['test_user']["username"])
 
         dbms.close_connection()
 
@@ -56,7 +57,7 @@ class TestDBMS(unittest.TestCase):
         5. Close the database connection.
         """
         dbms = DBMS()
-        statement, data = dbms.login_user("bogan", "123")
+        statement, data = dbms.login_user(self.test_settings['test_user']["username"], self.test_settings['test_user']["password"])
         self.assertEqual(statement, True)
         dbms.close_connection()
 
@@ -72,7 +73,7 @@ class TestDBMS(unittest.TestCase):
         5. Close the database connection.
         """
         dbms = DBMS()
-        statement, _ = dbms.login_user("bogan", "1234")
+        statement, _ = dbms.login_user("testosfogdsfg", "1234")
         self.assertEqual(statement, False)
         dbms.close_connection()
 
@@ -88,7 +89,7 @@ class TestDBMS(unittest.TestCase):
         5. Close the database connection.
         """
         dbms = DBMS()
-        statement, data = dbms.register_user("bogan", "123")
+        statement, data = dbms.register_user(self.test_settings['test_user']["username"], self.test_settings['test_user']["password"])
         self.assertEqual(statement, False)
         self.assertEqual(data, "Username already exists.")
         dbms.close_connection()
@@ -108,9 +109,9 @@ class TestDBMS(unittest.TestCase):
         """
         dbms = DBMS()
         expiration_date = datetime.utcnow() + timedelta(days=1)
-        random_uuid = uuid.uuid4()
+        random_uuid = str(uuid.uuid4())
 
-        statement = dbms.insert_access_code("test", 1, random_uuid, expiration_date)
+        statement = dbms.insert_access_code("egdsfvdsgewc", 1, random_uuid, expiration_date)
         self.assertEqual(statement, False)
         dbms.close_connection()
 
@@ -125,7 +126,7 @@ class TestDBMS(unittest.TestCase):
         4. Assert that the statement is False.
         """
         dbms = DBMS()
-        statement, _ = dbms.fetch_access_code("test")
+        statement, _ = dbms.fetch_access_code("sfhsdgfasdasfafgdswgw")
         self.assertEqual(statement, False)
 
     def test_fetch_movies(self):
@@ -158,7 +159,7 @@ class TestDBMS(unittest.TestCase):
         5. Close the database connection.
         """
         dbms = DBMS()
-        statement, data = dbms.fetch_movie(1)
+        statement, data = dbms.fetch_movie(self.test_settings['test_movie']["movie_id"])
         self.assertEqual(statement, True)
         self.assertIsInstance(data, tuple)
         dbms.close_connection()
