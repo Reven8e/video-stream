@@ -1,14 +1,26 @@
-{% extends "base.html" %} {% block title %}Watch Movie{% endblock %}}
+{% extends "base.html" %} 
+{% block title %}Watch Movie{% endblock %}}
+
 {% block nav %}
 <a class="nav-link" href="/videostream/available_movies">Available Movies</a>
 <a class="nav-link" href="/signout">Sign Out</a>
 {% endblock %}
 
 {% block content %}
-<h1>Video Streaming</h1>
-<video id="video" controls></video>
+<h1 style="display: flex; justify-content: center;">Video Streaming</h1>
+<div style="display: flex; justify-content: center;">
+    <video id="video" controls style="width: 100%; height: auto;"></video>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mux.js/6.0.0/mux.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/3.2.0/shaka-player.compiled.js"></script>
 
 <script>
+    // This script initializes a Shaka Player for video streaming and establishes a socket connection for synchronization.
+    // It loads a video file specified by the 'moviePath' variable and configures adaptive bitrate streaming (ABR).
+    // The socket connection is used to synchronize video playback between multiple users.
+    // The 'accessCode' and 'userId' variables are used to identify the user and session.
+    // The script also includes event listeners for video play and pause events, and handles synchronization actions received from the socket server.
     const socket = io('/StreamManager', {
         reconnectionAttempts: 5,
         reconnectionDelay: 5000
@@ -17,19 +29,42 @@
     const userId = '{{ user_id }}';
     const moviePath = '{{ movie_path }}';
     const accessCode = '{{ access_code }}';
+
     var isSyncing = false;
 
-    if (Hls.isSupported()) {
-        var hls = new Hls();
-        hls.loadSource(moviePath);
-        hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = moviePath;
+    function initShakaPlayer() {
+    shaka.polyfill.installAll();
+
+    if (shaka.Player.isBrowserSupported()) {
+        var player = new shaka.Player(video);
+        player.load(moviePath).catch(onShakaError);
+
+        // Configure ABR
+        player.configure({
+            abr: {
+                enabled: true,
+                defaultBandwidthEstimate: 6000000,
+                bandwidthUpgradeTarget: 0.85,
+                bandwidthDowngradeTarget: 0.95
+            },
+            streaming: {
+                bufferingGoal: 60 
+            }
+        });
+
+        player.addEventListener('error', onShakaError);
+    } else {
+        console.error('Browser not supported!');
+    }
+}
+
+    function onShakaError(error) {
+        console.error('Error code', error.code, 'object', error);
     }
 
     socket.emit('join', { session_code: accessCode, user_id: userId });
 
-    video.onplay = video.onpause = video.onseeked = function(event) {
+    video.onplay = video.onpause = function(event) {
         if (!isSyncing) {
             socket.emit('sync_command', { action: event.type, currentTime: video.currentTime, session_code: accessCode, user_id: userId });
         }
@@ -40,7 +75,7 @@
         video.currentTime = data.currentTime;
         if (data.action === 'play') video.play();
         if (data.action === 'pause') video.pause();
-        setTimeout(function() { isSyncing = false; }, 1000);
+        setTimeout(function() { isSyncing = false; }, 1500);
     });
 
     socket.on('new_user_joined', function(data) {
@@ -54,5 +89,7 @@
         video.currentTime = data.currentTime;
         if (!video.paused) video.play();
     });
+
+    initShakaPlayer();
 </script>
 {% endblock %}
