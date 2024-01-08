@@ -16,7 +16,9 @@ Before you begin, ensure you have the following installed:
 - A PostgreSQL database
 - A video converted to mp4
 
-[Download Video](https://theodore27.oceansaver.in/pacific/?6NJdPiKRk3AnUSFzu7rMA57qtrN) - Example 4K video to use. Please convert to mp4.
+
+- [Download 4K Video 11GB](https://mega.nz/file/s9cUTKIJ#jbVrS-I9CMr7Hf-i5fL81JPk26q9qnjXzCDkkII-Y1A) - Example 4K 11GB video to use.
+- [Download 4K Video 3.8GB](https://mega.nz/file/UpFT3ZqB#1ovh_HNbiFVv59IJ0f3BsrkInSpvg7FmQGd9HQ0V4WA) - Example 4K 3.8GB video to use.
 
 ---
 ### Installation
@@ -38,13 +40,13 @@ Before you begin, ensure you have the following installed:
 3. **Set Up the Database:**
    Import the SQL schema into your PostgreSQL database using the provided `schema.sql` file.
 
-4. **Start setup:**
+4. **Start setup:** Install  dependencies, convert video to HLS format. NOTE: If you want to convert another video, start setup again.
    ```bash
    python setup.py
    ```
 
 5. **Update Movies Table:**
-   Insert relevant information about your video into the `movies` table, including the movie title, path (`static/<video directory path>/master.m3u8`), and thumbnail URL. Use SQL query provided by Step number 3.
+   Insert relevant information about your video into the `movies` table. Utilize SQL query template provided by Step number 3.
 
 ---
 ## Usage
