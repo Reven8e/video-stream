@@ -56,11 +56,11 @@ Before you begin, ensure you have the following installed:
    python app.py
    ```
 
-2. **Register a New User:** Go to http://127.0.0.1:5000/register to create an account.
+2. **Register a New User:** Go to http://127.0.0.1:5000/signup to create an account.
 
    CURL Example:
    ```bash
-   curl -X POST http://127.0.0.1:5000/register -d "username=<username>&password1=<password1>&password2=<password2>" 
+   curl -X POST http://127.0.0.1:5000/signup -d "username=<username>&password1=<password1>&password2=<password2>" 
    ```
 
 
