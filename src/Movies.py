@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import json
 
 from src.DBMS import DBMS
+from src.DBInterfaces import PostgresDatabase
 from src.CodeManage import CodeManage
 from src import login_required
 from flask import redirect, url_for, flash
@@ -29,7 +30,7 @@ def available_movies():
         - If there is an error fetching movies from the database, returns an error message.
         - If there is an error generating or checking the access code, returns an error message.
     """
-    db = DBMS()
+    db = DBMS(PostgresDatabase())
     movies_statement, movies = db.fetch_movies()
     db.close_connection()
 
@@ -83,7 +84,7 @@ def videostream(access_code):
     if statement is False:
         return redirect(url_for('movies.available_movies')), flash(f"Invalid access code: {access_code} | Error: {access_code}", category='danger'), 400
 
-    db = DBMS()
+    db = DBMS(PostgresDatabase())
     statement, movie_obj = db.fetch_movie(check_code[1])
     db.close_connection()
 
