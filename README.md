@@ -14,6 +14,9 @@ Before you begin, ensure you have the following installed:
 - FFMPEG
 - A HLS-supported web browser
 - A PostgreSQL database
+- A video converted to mp4
+
+[Download Video](https://theodore27.oceansaver.in/pacific/?6NJdPiKRk3AnUSFzu7rMA57qtrN) - Example 4K video to use. Please convert to mp4.
 
 ---
 ### Installation
