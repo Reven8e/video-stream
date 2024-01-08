@@ -1,3 +1,4 @@
+from src.DBInterfaces import PostgresDatabase
 from src.DBMS import DBMS
 
 from datetime import datetime, timedelta
@@ -22,7 +23,7 @@ class TestDBMS(unittest.TestCase):
         3. Assert that the returned data is None.
         4. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         data = dbms.check_username("testtesto")
         self.assertEqual(data, None)
         dbms.close_connection()
@@ -38,7 +39,7 @@ class TestDBMS(unittest.TestCase):
         4. Verify that the data returned by the method is "bogan".
         5. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         data = dbms.check_username(self.test_settings['test_user']["username"])
 
         self.assertEqual(data[1], self.test_settings['test_user']["username"])
@@ -56,7 +57,7 @@ class TestDBMS(unittest.TestCase):
         4. Assert that the statement is True.
         5. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement, data = dbms.login_user(self.test_settings['test_user']["username"], self.test_settings['test_user']["password"])
         self.assertEqual(statement, True)
         dbms.close_connection()
@@ -72,7 +73,7 @@ class TestDBMS(unittest.TestCase):
         4. Assert that the statement is False.
         5. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement, _ = dbms.login_user("testosfogdsfg", "1234")
         self.assertEqual(statement, False)
         dbms.close_connection()
@@ -88,7 +89,7 @@ class TestDBMS(unittest.TestCase):
         4. Verify that the data returned is "Username already exists."
         5. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement, data = dbms.register_user(self.test_settings['test_user']["username"], self.test_settings['test_user']["password"])
         self.assertEqual(statement, False)
         self.assertEqual(data, "Username already exists.")
@@ -107,7 +108,7 @@ class TestDBMS(unittest.TestCase):
         4. Assert that the returned statement is False.
         5. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         expiration_date = datetime.utcnow() + timedelta(days=1)
         random_uuid = str(uuid.uuid4())
 
@@ -125,7 +126,7 @@ class TestDBMS(unittest.TestCase):
         3. Retrieve the statement returned by the method.
         4. Assert that the statement is False.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement, _ = dbms.fetch_access_code("sfhsdgfasdasfafgdswgw")
         self.assertEqual(statement, False)
 
@@ -141,7 +142,7 @@ class TestDBMS(unittest.TestCase):
         5. Close the database connection.
         """
 
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement, data = dbms.fetch_movies()
         self.assertEqual(statement, True)
         self.assertIsInstance(data, list)
@@ -158,7 +159,7 @@ class TestDBMS(unittest.TestCase):
         4. Assert that the data returned by the method is an instance of tuple.
         5. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement, data = dbms.fetch_movie(self.test_settings['test_movie']["movie_id"])
         self.assertEqual(statement, True)
         self.assertIsInstance(data, tuple)
@@ -175,7 +176,7 @@ class TestDBMS(unittest.TestCase):
         4. Verify that the data returned is "Movie does not exist."
         5. Close the database connection.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement, data = dbms.fetch_movie(385237432432)
         self.assertEqual(statement, False)
         self.assertEqual(data, "Movie does not exist.")
@@ -191,7 +192,7 @@ class TestDBMS(unittest.TestCase):
         3. Assert that the return value is None.
         4. Call the close_connection method again.
         """
-        dbms = DBMS()
+        dbms = DBMS(PostgresDatabase())
         statement = dbms.close_connection()
         self.assertEqual(statement, None)
         dbms.close_connection()
