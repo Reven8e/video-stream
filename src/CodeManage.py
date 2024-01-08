@@ -1,5 +1,6 @@
 from src.DBMS import DBMS
 
+from src.DBInterfaces import PostgresDatabase
 from datetime import datetime
 
 import random, string
@@ -16,7 +17,7 @@ class CodeManage:
         """
         Constructor for the CodeManage class.
         """
-        self.db = DBMS()
+        self.db = DBMS(PostgresDatabase())
 
     def __del__(self):
         """

@@ -1,53 +1,19 @@
-import psycopg2
 from flask_bcrypt import Bcrypt
 
-import os, uuid, json
+from src.DBInterfaces import DatabaseInterface
+
+import uuid, json
 
 
 class DBMS:
-    """
-    A class representing a Database Management System (DBMS).
-
-    Attributes:
-        __connection (psycopg2.extensions.connection): The connection to the PostgreSQL database.
-        bcrypt (Bcrypt): The Bcrypt object for password hashing.
-
-    Methods:
-        __init__: Initializes the DBMS object and establishes a connection to the database.
-        __generate_uuid: Generates a UUID string.
-        __check_user_id: Checks if a user ID exists in the database.
-        check_username: Checks if a username exists in the database.
-        login_user: Authenticates a user by checking the username and password.
-        register_user: Registers a new user in the database.
-        insert_access_code: Inserts an access code into the database.
-        check_access_code: Checks if an access code is valid and not expired.
-        fetch_movies: Fetches all movies from the database.
-        fetch_movie: Fetches a specific movie from the database.
-        close_connection: Closes the database connection.
-    """
-
-    def __init__(self) -> None:
-        """
-        Initializes the DBMS object and establishes a connection to the database.
-        """
-        self.__connection = psycopg2.connect(
-            host=os.environ['PSQL_HOST'],
-            user=os.environ['PSQL_USER'],
-            password=os.environ['PSQL_PASSWORD']
-        )
-
+    def __init__(self, database: DatabaseInterface):
+        self.database = database
         self.bcrypt = Bcrypt()
 
     @staticmethod
     def __generate_uuid() -> str:
-        """
-        Generates a UUID string.
-
-        Returns:
-            str: The generated UUID string.
-        """
         return str(uuid.uuid4())
-    
+
     def __check_user_id(self, user_id: str) -> tuple or None:
         """
         Checks if a user ID exists in the database.
@@ -59,16 +25,10 @@ class DBMS:
             tuple or None: The user data if the user ID exists, None otherwise.
         """
         try:
-            cursor = self.__connection.cursor()
-
             query = "SELECT * FROM users WHERE user_id = %s"
-            cursor.execute(query, (user_id,))
-            data = cursor.fetchone()
-
-            cursor.close()
-            return data
+            return self.database.execute_query(query, (user_id,), fetch='one')
         except Exception as e:
-            print(e)
+            print('[__check_user_id]', e)
             return
 
     def check_username(self, username: str) -> tuple or None:
@@ -82,18 +42,12 @@ class DBMS:
             tuple or None: The user data if the username exists, None otherwise.
         """
         try:
-            cursor = self.__connection.cursor()
-
             query = "SELECT * FROM users WHERE username = %s"
-            cursor.execute(query, (username,))
-            data = cursor.fetchone()
-
-            cursor.close()
-            return data
+            return self.database.execute_query(query, (username,), fetch='one')
         except Exception as e:
-            print(e)
+            print('[check_username]', e)
             return
-
+        
     def login_user(self, username: str, password: str) -> tuple:
         """
         Authenticates a user by checking the username and password.
@@ -107,13 +61,12 @@ class DBMS:
                    containing the user ID and username if authentication is successful, or an error message if not.
         """
         try:
-            data = self.check_username(username)
+            check_username = self.check_username(username)
 
-            if data is None:
+            if check_username is None:
                 return False, "Username is incorrect!"
-
-            user_id = data[0]
-            sql_password_hash = data[2]
+            
+            user_id, sql_password_hash = check_username[0], check_username[2]
 
             if not self.bcrypt.check_password_hash(sql_password_hash, password):
                 return False, "Password is incorrect!"
@@ -123,9 +76,10 @@ class DBMS:
                 "user_name": username,
             })
 
-        except ZeroDivisionError:
+        except Exception as e:
+            print('[login_user]', e)
             return False, 'e'
-
+        
     def register_user(self, username: str, password: str) -> tuple:
         """
         Registers a new user in the database.
@@ -139,29 +93,25 @@ class DBMS:
                    containing the user ID and username if registration is successful, or an error message if not.
         """
         try:
-            cursor = self.__connection.cursor()
+            check_username = self.check_username(username)
 
-            user = self.check_username(username)
-
-            if user is not None:
+            if check_username is not None:
                 return False, "Username already exists."
 
-            hashed_password = self.bcrypt.generate_password_hash(password, rounds=10).decode('utf-8')
-            user_uuid = DBMS.__generate_uuid()
+            user_id = self.__generate_uuid()
+            password_hash = self.bcrypt.generate_password_hash(password).decode('utf-8')
 
             query = "INSERT INTO users (user_id, username, password_hash) VALUES (%s, %s, %s)"
-            cursor.execute(query, (user_uuid, username, hashed_password))
-
-            self.__connection.commit()
-            cursor.close()
+            self.database.execute_query(query, (user_id, username, password_hash), fetch=None)
+            self.database.commit()
 
             return True, json.dumps({
-                "user_id": user_uuid,
+                "user_id": user_id,
                 "user_name": username,
             })
 
         except Exception as e:
-            print(e)
+            print('[register_user]', e)
             return False, e
         
     def insert_access_code(self, access_code: str, movie_id: int, user_id: str, expiration_date) -> bool:
@@ -182,21 +132,17 @@ class DBMS:
 
             if check_user is None:
                 return False
-
-            cursor = self.__connection.cursor()
-
+            
             query = "INSERT INTO access_codes (code_id, movie_id, user_id, expires_at) VALUES (%s, %s, %s, %s)"
-            cursor.execute(query, (access_code, movie_id, user_id, expiration_date)) 
-
-            self.__connection.commit()
-            cursor.close()
+            self.database.execute_query(query, (access_code, movie_id, user_id, expiration_date), fetch=None)
+            self.database.commit()
 
             return True
-
-        except Exception as e:
-            print(e)
-            return False
         
+        except Exception as e:
+            print('[insert_access_code]', e)
+            return False
+
     def fetch_access_code(self, access_code: str) -> tuple:
         """
         Fetches the access code from the database.
@@ -207,45 +153,31 @@ class DBMS:
         Returns:
             tuple: A tuple containing a boolean value indicating whether the access code exists and the fetched data.
                    If the access code does not exist, the boolean value will be False and an error message will be returned.
-        """         
+        """
         try:
-            cursor = self.__connection.cursor()
-
             query = "SELECT * FROM access_codes WHERE code_id = %s"
-            cursor.execute(query, (access_code,))
-            data = cursor.fetchone()
+            sql = self.database.execute_query(query, (access_code,), fetch='one')
 
-            cursor.close()
+            if sql is None:
+                return False, "Access code does not exist!"
 
-            if data is None:
-                return False, "Access code does not exist."
-
-            return True, data
+            return True, sql
 
         except Exception as e:
-            print(e)
+            print('[fetch_access_code]', e)
             return False, e
-        
-    def fetch_movies(self) -> tuple:
-        """
-        Fetches all movies from the database.
 
-        Returns:
-            tuple: A tuple containing a boolean indicating the fetch result and a list of movie data
-                   if the fetch is successful, or an error message if not.
-        """
+    def fetch_movies(self):
         try:
-            cursor = self.__connection.cursor()
-
             query = "SELECT * FROM movies"
-            cursor.execute(query)
-            data = cursor.fetchall()
-
-            cursor.close()
-            return True, data
+            sql = self.database.execute_query(query)
+            if sql:
+                return True, sql
+            else:
+                return False, sql
 
         except Exception as e:
-            print(e)
+            print('[fetch_movies]', e)
             return False, e
         
     def fetch_movie(self, movie_id: int) -> tuple:
@@ -260,25 +192,16 @@ class DBMS:
                    if the fetch is successful, or an error message if not.
         """
         try:
-            cursor = self.__connection.cursor()
-
             query = "SELECT * FROM movies WHERE movie_id = %s"
-            cursor.execute(query, (movie_id,))
-
-            data = cursor.fetchone()
-            cursor.close()
-
-            if data is None:
+            sql = self.database.execute_query(query, (movie_id,), fetch='one')
+            if sql:
+                return True, sql
+            else:
                 return False, "Movie does not exist."
 
-            return True, data
-
         except Exception as e:
-            print(e)
+            print('[fetch_movie]', e)
             return False, e
 
-    def close_connection(self) -> None:
-        """
-        Closes the database connection.
-        """
-        self.__connection.close()
+    def close_connection(self):
+        self.database.close()

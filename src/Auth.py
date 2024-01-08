@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, session, request
 
+from src.DBInterfaces import PostgresDatabase
 from src.DBMS import DBMS
 from src import login_required
 
@@ -22,7 +23,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        db = DBMS()
+        db = DBMS(PostgresDatabase())
         statement, user = db.login_user(username, password)
         db.close_connection()
 
@@ -65,7 +66,7 @@ def sign_up():
             flash("Password must be at least 7 characters.", category='danger')
 
         else:
-            db = DBMS()
+            db = DBMS(PostgresDatabase())
             statement, data = db.register_user(username, password1)
             db.close_connection()
 
